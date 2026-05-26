@@ -1,0 +1,7 @@
+node_modules/
+.env
+sessions/
+uploads/projects/*
+uploads/messages/*
+!uploads/projects/.gitkeep
+!uploads/messages/.gitkeep
