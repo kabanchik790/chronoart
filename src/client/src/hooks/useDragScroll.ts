@@ -1,47 +1,54 @@
-import { useCallback, useRef, type DragEvent, type MouseEvent as ReactMouseEvent } from 'react';
+import { useCallback, useEffect, useRef, type DragEvent, type MouseEvent as ReactMouseEvent } from 'react';
 
 export function useDragScroll<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
-  const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0 });
+  const state = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false });
 
-  const onMouseDown = useCallback((event: ReactMouseEvent<T>) => {
-    const element = ref.current;
-    if (!element) return;
-    // Блокируем нативный drag браузера (иначе тащит ссылку вместо прокрутки)
-    event.preventDefault();
-    dragState.current = {
-      isDragging: true,
-      startX: event.pageX - element.offsetLeft,
-      scrollLeft: element.scrollLeft,
+  // Навешиваем mousemove/mouseup на document — события не теряются при быстром движении мыши
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!state.current.active) return;
+      const el = ref.current;
+      if (!el) return;
+      const dx = e.pageX - state.current.startX;
+      if (Math.abs(dx) > 3) state.current.moved = true;
+      el.scrollLeft = state.current.scrollLeft - dx;
     };
-    element.classList.add('is-dragging');
+
+    const onUp = () => {
+      if (!state.current.active) return;
+      state.current.active = false;
+      ref.current?.classList.remove('is-dragging');
+      // Короткая задержка: даём браузеру обработать click после drag
+      setTimeout(() => { state.current.moved = false; }, 0);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    return () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
   }, []);
 
-  const stopDragging = useCallback(() => {
-    dragState.current.isDragging = false;
-    ref.current?.classList.remove('is-dragging');
+  const onMouseDown = useCallback((e: ReactMouseEvent<T>) => {
+    const el = ref.current;
+    if (!el) return;
+    state.current = { active: true, startX: e.pageX, scrollLeft: el.scrollLeft, moved: false };
+    el.classList.add('is-dragging');
   }, []);
 
-  const onMouseMove = useCallback((event: ReactMouseEvent<T>) => {
-    const element = ref.current;
-    if (!element || !dragState.current.isDragging) return;
-    const x = event.pageX - element.offsetLeft;
-    element.scrollLeft = dragState.current.scrollLeft - (x - dragState.current.startX);
+  // Блокируем переход по ссылке если было движение мышью
+  const onClick = useCallback((e: ReactMouseEvent<T>) => {
+    if (state.current.moved) e.preventDefault();
   }, []);
 
-  // Блокируем системный dragstart на вложенных ссылках и картинках
-  const onDragStart = useCallback((event: DragEvent<T>) => {
-    event.preventDefault();
+  const onDragStart = useCallback((e: DragEvent<T>) => {
+    e.preventDefault();
   }, []);
 
   return {
     ref,
-    dragScrollProps: {
-      onMouseDown,
-      onMouseLeave: stopDragging,
-      onMouseUp: stopDragging,
-      onMouseMove,
-      onDragStart,
-    },
+    dragScrollProps: { onMouseDown, onClick, onDragStart },
   };
 }
