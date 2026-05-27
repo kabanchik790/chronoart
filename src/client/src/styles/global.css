@@ -18,14 +18,15 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  /* clip не создаёт scroll-контейнер — position:sticky на хедере работает */
+  overflow-x: clip;
 }
 
 body {
   min-width: 320px;
   margin: 0;
   background: var(--color-surface);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 a {
@@ -2045,6 +2046,21 @@ h2 {
     row-gap: 0;
   }
 
+  /* 1-колонка: число вплотную к заголовку, не space-between */
+  .process-step {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: auto;
+    padding: 20px 16px;
+    border-left: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  }
+
+  .process-step:last-child {
+    border-bottom: 0;
+  }
+
   .process-heading {
     margin-bottom: 64px;
   }
@@ -2060,6 +2076,10 @@ h2 {
 
   .contacts-photo {
     height: 420px;
+  }
+
+  .contacts-photo img {
+    object-position: center top;
   }
 
   .contacts-info {
@@ -2154,6 +2174,11 @@ h2 {
 
   .header-burger {
     display: flex;
+  }
+
+  /* Убрать лишний левый отступ логотипа на мобиле */
+  .header-wordmark {
+    padding-left: 16px;
   }
 
   /* Portfolio grid: 1 column */

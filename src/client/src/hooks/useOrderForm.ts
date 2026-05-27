@@ -3,7 +3,7 @@ import type { OrderFormValues, User } from '../types';
 
 export const initialOrderFormValues: OrderFormValues = {
   mechanism: 'Автоматический',
-  case_type: 'Круглый',
+  case_type: 'Круглая',
   dial: 'Эмалевый',
   strap: 'Кожа',
   engraving: '',
