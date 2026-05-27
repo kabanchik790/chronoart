@@ -1922,7 +1922,6 @@ h2 {
 .project-detail-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  max-width: 1080px;
   gap: 64px;
   align-items: start;
 }
