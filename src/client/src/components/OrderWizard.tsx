@@ -3,10 +3,22 @@ import { NavLink } from 'react-router-dom';
 import { ApiError } from '../api/auth';
 import { IconArrowLeft, IconArrowRight } from '../assets/icons';
 import { createOrder } from '../api/orders';
-import mechanismImage from '../assets/wizard/mechanism-auto.png';
-import caseImage from '../assets/wizard/case-round.png';
-import dialImage from '../assets/wizard/dial-enamel.png';
-import strapImage from '../assets/wizard/strap-leather.png';
+import mechanismAutoImage from '../assets/wizard/studio/mechanism-auto.png';
+import mechanismManualImage from '../assets/wizard/studio/mechanism-manual.png';
+import mechanismSkeletonImage from '../assets/wizard/studio/mechanism-skeleton.png';
+import mechanismOpenHeartImage from '../assets/wizard/studio/mechanism-open-heart.png';
+import caseRoundImage from '../assets/wizard/studio/case-round.png';
+import caseSquareImage from '../assets/wizard/studio/case-square.png';
+import caseRectangularImage from '../assets/wizard/studio/case-rectangular.png';
+import caseTonneauImage from '../assets/wizard/studio/case-tonneau.png';
+import dialEnamelImage from '../assets/wizard/studio/dial-enamel.png';
+import dialGuillocheImage from '../assets/wizard/studio/dial-guilloche.png';
+import dialSkeletonImage from '../assets/wizard/studio/dial-skeleton.png';
+import dialMatteImage from '../assets/wizard/studio/dial-matte.png';
+import strapLeatherImage from '../assets/wizard/studio/strap-leather.png';
+import strapSteelImage from '../assets/wizard/studio/strap-steel.png';
+import strapFabricImage from '../assets/wizard/studio/strap-fabric.png';
+import strapRubberImage from '../assets/wizard/studio/strap-rubber.png';
 import { useAuth } from '../hooks/useAuth';
 import { useOrderForm } from '../hooks/useOrderForm';
 import type { OrderFormValues } from '../types';
@@ -15,12 +27,12 @@ type Option = {
   value: string;
   label: string;
   description: string;
+  image: string;
 };
 
 type ChoiceStep = {
   key: 'mechanism' | 'case_type' | 'dial' | 'strap';
   title: string;
-  image: string;
   options: Option[];
 };
 
@@ -28,45 +40,41 @@ const choiceSteps: ChoiceStep[] = [
   {
     key: 'mechanism',
     title: 'ВЫБЕРИТЕ МЕХАНИЗМ',
-    image: mechanismImage,
     options: [
-      { value: 'Автоматический', label: 'АВТОМАТИЧЕСКИЙ', description: 'Заводится от движения руки, подходит для повседневной носки.' },
-      { value: 'Ручной завод', label: 'РУЧНОЙ ЗАВОД', description: 'Классическая механика с ежедневным ритуалом завода.' },
-      { value: 'Скелетон', label: 'СКЕЛЕТОН', description: 'Открытая конструкция с видимой работой механизма.' },
-      { value: 'Open-heart', label: 'OPEN-HEART', description: 'Открытый баланс без полного скелетонирования циферблата.' },
+      { value: 'Автоматический', label: 'АВТОМАТИЧЕСКИЙ', description: 'Заводится от движения руки, подходит для повседневной носки.', image: mechanismAutoImage },
+      { value: 'Ручной завод', label: 'РУЧНОЙ ЗАВОД', description: 'Классическая механика с ежедневным ритуалом завода.', image: mechanismManualImage },
+      { value: 'Скелетон', label: 'СКЕЛЕТОН', description: 'Открытая конструкция с видимой работой механизма.', image: mechanismSkeletonImage },
+      { value: 'Open-heart', label: 'OPEN-HEART', description: 'Открытый баланс без полного скелетонирования циферблата.', image: mechanismOpenHeartImage },
     ],
   },
   {
     key: 'case_type',
     title: 'ВЫБЕРИТЕ ФОРМУ КОРПУСА',
-    image: caseImage,
     options: [
-      { value: 'Круглая', label: 'КРУГЛАЯ', description: 'Классическая форма, универсальна для любого стиля.' },
-      { value: 'Квадратная', label: 'КВАДРАТНАЯ', description: 'Геометричный, строгий характер.' },
-      { value: 'Прямоугольная', label: 'ПРЯМОУГОЛЬНАЯ', description: 'Вытянутая форма, ближе к винтажной эстетике.' },
-      { value: 'Бочкообразная', label: 'БОЧКООБРАЗНАЯ', description: 'Мягкие изгибы, редкая форма корпуса.' },
+      { value: 'Круглая', label: 'КРУГЛАЯ', description: 'Классическая форма, универсальна для любого стиля.', image: caseRoundImage },
+      { value: 'Квадратная', label: 'КВАДРАТНАЯ', description: 'Геометричный, строгий характер.', image: caseSquareImage },
+      { value: 'Прямоугольная', label: 'ПРЯМОУГОЛЬНАЯ', description: 'Вытянутая форма, ближе к винтажной эстетике.', image: caseRectangularImage },
+      { value: 'Бочкообразная', label: 'БОЧКООБРАЗНАЯ', description: 'Мягкие изгибы, редкая форма корпуса.', image: caseTonneauImage },
     ],
   },
   {
     key: 'dial',
     title: 'ВЫБЕРИТЕ ЦИФЕРБЛАТ',
-    image: dialImage,
     options: [
-      { value: 'Эмалевый', label: 'ЭМАЛЕВЫЙ', description: 'Глянцевая поверхность и глубокий цвет.' },
-      { value: 'Гильоше', label: 'ГИЛЬОШЕ', description: 'Рельефный узор с ручной или станочной фактурой.' },
-      { value: 'Скелетон', label: 'СКЕЛЕТОН', description: 'Минимум закрытых поверхностей, акцент на механике.' },
-      { value: 'Матовый', label: 'МАТОВЫЙ', description: 'Спокойная поверхность без бликов.' },
+      { value: 'Эмалевый', label: 'ЭМАЛЕВЫЙ', description: 'Глянцевая поверхность и глубокий цвет.', image: dialEnamelImage },
+      { value: 'Гильоше', label: 'ГИЛЬОШЕ', description: 'Рельефный узор с ручной или станочной фактурой.', image: dialGuillocheImage },
+      { value: 'Скелетон', label: 'СКЕЛЕТОН', description: 'Минимум закрытых поверхностей, акцент на механике.', image: dialSkeletonImage },
+      { value: 'Матовый', label: 'МАТОВЫЙ', description: 'Спокойная поверхность без бликов.', image: dialMatteImage },
     ],
   },
   {
     key: 'strap',
     title: 'ВЫБЕРИТЕ РЕМЕШОК',
-    image: strapImage,
     options: [
-      { value: 'Кожа', label: 'КОЖА', description: 'Классический ремешок ручной прошивки.' },
-      { value: 'Сталь', label: 'СТАЛЬ', description: 'Браслет в тон корпуса, более утилитарный характер.' },
-      { value: 'Ткань', label: 'ТКАНЬ', description: 'Лёгкий повседневный вариант.' },
-      { value: 'Каучук', label: 'КАУЧУК', description: 'Практичный ремешок для активного использования.' },
+      { value: 'Кожа', label: 'КОЖА', description: 'Классический ремешок ручной прошивки.', image: strapLeatherImage },
+      { value: 'Сталь', label: 'СТАЛЬ', description: 'Браслет в тон корпуса, более утилитарный характер.', image: strapSteelImage },
+      { value: 'Ткань', label: 'ТКАНЬ', description: 'Лёгкий повседневный вариант.', image: strapFabricImage },
+      { value: 'Каучук', label: 'КАУЧУК', description: 'Практичный ремешок для активного использования.', image: strapRubberImage },
     ],
   },
 ];
@@ -144,7 +152,9 @@ export default function OrderWizard() {
     );
   }
 
-  const currentStep = choiceSteps[stepIndex];
+  const currentStep = choiceSteps[stepIndex] ?? choiceSteps[0];
+  const selectedOption = currentStep.options.find((option) => option.value === orderForm.values[currentStep.key])
+    ?? currentStep.options[0];
 
   return (
     <section id="wizard" className="wizard-section">
@@ -152,7 +162,7 @@ export default function OrderWizard() {
       <form className={isFinalStep ? 'wizard-stage wizard-stage-final' : 'wizard-stage'} onSubmit={handleSubmit}>
         {!isFinalStep ? (
           <div className="wizard-image-panel">
-            <img src={currentStep.image} alt="" />
+            <img src={selectedOption.image} alt="" />
           </div>
         ) : (
           <div className="wizard-final-spacer" aria-hidden="true" />
