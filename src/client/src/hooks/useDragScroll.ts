@@ -58,7 +58,6 @@ export function useDragScroll<T extends HTMLElement>() {
 
         const animate = () => {
           if (Math.abs(v) < 0.5) {
-            el.style.scrollSnapType = '';
             rafRef.current = null;
             return;
           }
@@ -69,8 +68,6 @@ export function useDragScroll<T extends HTMLElement>() {
 
         if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(animate);
-      } else {
-        el.style.scrollSnapType = '';
       }
 
       setTimeout(() => { state.current.moved = false; }, 0);
