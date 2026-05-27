@@ -1946,9 +1946,10 @@ h2 {
 
 .project-detail-copy h1 {
   max-width: 460px;
-  font-size: clamp(48px, 5vw, 84px);
+  font-size: clamp(32px, 5vw, 84px);
   font-weight: 600;
-  line-height: 0.95;
+  line-height: 1;
+  overflow-wrap: break-word;
 }
 
 .project-detail-meta {
