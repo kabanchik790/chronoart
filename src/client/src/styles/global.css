@@ -18,12 +18,14 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
   min-width: 320px;
   margin: 0;
   background: var(--color-surface);
+  overflow-x: hidden;
 }
 
 a {
@@ -927,6 +929,9 @@ h2 {
   scrollbar-width: none;
   user-select: none;
   touch-action: pan-x;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .hero-carousel::-webkit-scrollbar {
@@ -963,6 +968,7 @@ h2 {
   background: var(--color-surface);
   text-decoration: none;
   color: inherit;
+  scroll-snap-align: start;
   cursor: pointer;
 }
 
@@ -1881,6 +1887,9 @@ h2 {
   font-weight: 500;
   line-height: 1.15;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .portfolio-card img,
@@ -2027,9 +2036,13 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .process-grid,
   .portfolio-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .process-grid {
+    grid-template-columns: 1fr;
+    row-gap: 0;
   }
 
   .process-heading {
@@ -2159,7 +2172,11 @@ h2 {
     padding: 48px 16px 64px;
   }
 
-  /* Wizard options: ensure 48px touch targets */
+  /* Wizard options: ensure 48px touch targets, reduce gap between items */
+  .wizard-options {
+    gap: 6px;
+  }
+
   .wizard-option {
     min-height: 48px;
     padding: 8px 0;

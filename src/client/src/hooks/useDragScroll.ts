@@ -1,5 +1,6 @@
-import { useCallback, useRef, type MouseEvent as ReactMouseEvent, type TouchEvent as ReactTouchEvent } from 'react';
+import { useCallback, useRef, type MouseEvent as ReactMouseEvent } from 'react';
 
+// Touch devices use native scroll with momentum — only mouse drag is handled here.
 export function useDragScroll<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
   const dragState = useRef({
@@ -38,35 +39,6 @@ export function useDragScroll<T extends HTMLElement>() {
     element.scrollLeft = dragState.current.scrollLeft - (x - dragState.current.startX);
   }, []);
 
-  const onTouchStart = useCallback((event: ReactTouchEvent<T>) => {
-    const element = ref.current;
-    if (!element) {
-      return;
-    }
-
-    const touch = event.touches[0];
-    dragState.current = {
-      isDragging: true,
-      startX: touch.pageX - element.offsetLeft,
-      scrollLeft: element.scrollLeft,
-    };
-  }, []);
-
-  const onTouchMove = useCallback((event: ReactTouchEvent<T>) => {
-    const element = ref.current;
-    if (!element || !dragState.current.isDragging) {
-      return;
-    }
-
-    const touch = event.touches[0];
-    const x = touch.pageX - element.offsetLeft;
-    element.scrollLeft = dragState.current.scrollLeft - (x - dragState.current.startX);
-  }, []);
-
-  const onTouchEnd = useCallback(() => {
-    dragState.current.isDragging = false;
-  }, []);
-
   return {
     ref,
     dragScrollProps: {
@@ -74,9 +46,6 @@ export function useDragScroll<T extends HTMLElement>() {
       onMouseLeave: stopDragging,
       onMouseUp: stopDragging,
       onMouseMove,
-      onTouchStart,
-      onTouchMove,
-      onTouchEnd,
     },
   };
 }
