@@ -22,8 +22,17 @@ export function useDragScroll<T extends HTMLElement>() {
       if (el) {
         el.classList.remove('is-dragging');
         el.style.scrollSnapType = '';
+
+        // Если было движение — перехватываем следующий click в capture-фазе,
+        // до того как React Router обработает его на <Link>
+        if (state.current.moved) {
+          const blockClick = (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+          };
+          el.addEventListener('click', blockClick, { capture: true, once: true });
+        }
       }
-      // Короткая задержка: даём браузеру обработать click после drag
       setTimeout(() => { state.current.moved = false; }, 0);
     };
 
@@ -44,17 +53,12 @@ export function useDragScroll<T extends HTMLElement>() {
     el.style.scrollSnapType = 'none';
   }, []);
 
-  // Блокируем переход по ссылке если было движение мышью
-  const onClick = useCallback((e: ReactMouseEvent<T>) => {
-    if (state.current.moved) e.preventDefault();
-  }, []);
-
   const onDragStart = useCallback((e: DragEvent<T>) => {
     e.preventDefault();
   }, []);
 
   return {
     ref,
-    dragScrollProps: { onMouseDown, onClick, onDragStart },
+    dragScrollProps: { onMouseDown, onDragStart },
   };
 }

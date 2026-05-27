@@ -963,6 +963,7 @@ h2 {
 .work-card {
   flex: 0 0 clamp(250px, 24.35vw, 468px);
   height: 100%;
+  max-height: 680px;
   display: grid;
   grid-template-rows: 86px minmax(0, 1fr);
   background: var(--color-surface);
