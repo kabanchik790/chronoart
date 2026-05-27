@@ -929,7 +929,6 @@ h2 {
   cursor: grab;
   scrollbar-width: none;
   user-select: none;
-  touch-action: pan-x;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
@@ -2046,19 +2045,26 @@ h2 {
     row-gap: 0;
   }
 
-  /* 1-колонка: число вплотную к заголовку, не space-between */
+  /* 1-колонка: число вплотную к заголовку, разделитель сразу под текстом */
   .process-step {
     display: flex;
     flex-direction: column;
     gap: 12px;
     min-height: auto;
-    padding: 20px 16px;
+    padding: 20px 16px 0;
     border-left: 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
   }
 
-  .process-step:last-child {
-    border-bottom: 0;
+  .process-step::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.2);
+    margin-top: 8px;
+  }
+
+  .process-step:last-child::after {
+    display: none;
   }
 
   .process-heading {

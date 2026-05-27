@@ -1,20 +1,14 @@
-import { useCallback, useRef, type MouseEvent as ReactMouseEvent } from 'react';
+import { useCallback, useRef, type DragEvent, type MouseEvent as ReactMouseEvent } from 'react';
 
-// Touch devices use native scroll with momentum — only mouse drag is handled here.
 export function useDragScroll<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
-  const dragState = useRef({
-    isDragging: false,
-    startX: 0,
-    scrollLeft: 0,
-  });
+  const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0 });
 
   const onMouseDown = useCallback((event: ReactMouseEvent<T>) => {
     const element = ref.current;
-    if (!element) {
-      return;
-    }
-
+    if (!element) return;
+    // Блокируем нативный drag браузера (иначе тащит ссылку вместо прокрутки)
+    event.preventDefault();
     dragState.current = {
       isDragging: true,
       startX: event.pageX - element.offsetLeft,
@@ -30,13 +24,14 @@ export function useDragScroll<T extends HTMLElement>() {
 
   const onMouseMove = useCallback((event: ReactMouseEvent<T>) => {
     const element = ref.current;
-    if (!element || !dragState.current.isDragging) {
-      return;
-    }
-
-    event.preventDefault();
+    if (!element || !dragState.current.isDragging) return;
     const x = event.pageX - element.offsetLeft;
     element.scrollLeft = dragState.current.scrollLeft - (x - dragState.current.startX);
+  }, []);
+
+  // Блокируем системный dragstart на вложенных ссылках и картинках
+  const onDragStart = useCallback((event: DragEvent<T>) => {
+    event.preventDefault();
   }, []);
 
   return {
@@ -46,6 +41,7 @@ export function useDragScroll<T extends HTMLElement>() {
       onMouseLeave: stopDragging,
       onMouseUp: stopDragging,
       onMouseMove,
+      onDragStart,
     },
   };
 }

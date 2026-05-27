@@ -19,6 +19,10 @@ export default function AppLayout() {
 
   useEffect(() => {
     closeMenu();
+    // Прокрутка вверх при смене страницы (хэш-якоря обрабатываются в компонентах)
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
   }, [location.pathname]);
 
   useEffect(() => {
@@ -42,7 +46,11 @@ export default function AppLayout() {
   return (
     <div className="app-shell">
       <header className="site-header">
-        <NavLink className="wordmark header-wordmark" to="/">
+        <NavLink
+          className="wordmark header-wordmark"
+          to="/"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
           CHRONO—ART
         </NavLink>
 
