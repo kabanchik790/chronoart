@@ -18,7 +18,11 @@ export function useDragScroll<T extends HTMLElement>() {
     const onUp = () => {
       if (!state.current.active) return;
       state.current.active = false;
-      ref.current?.classList.remove('is-dragging');
+      const el = ref.current;
+      if (el) {
+        el.classList.remove('is-dragging');
+        el.style.scrollSnapType = '';
+      }
       // Короткая задержка: даём браузеру обработать click после drag
       setTimeout(() => { state.current.moved = false; }, 0);
     };
@@ -36,6 +40,8 @@ export function useDragScroll<T extends HTMLElement>() {
     if (!el) return;
     state.current = { active: true, startX: e.pageX, scrollLeft: el.scrollLeft, moved: false };
     el.classList.add('is-dragging');
+    // Отключаем snap на время drag, чтобы скролл был свободным
+    el.style.scrollSnapType = 'none';
   }, []);
 
   // Блокируем переход по ссылке если было движение мышью

@@ -2084,10 +2084,6 @@ h2 {
     grid-column: 1;
   }
 
-  .process-step {
-    min-height: 240px;
-  }
-
   .wizard-stage {
     gap: 32px;
   }
@@ -2112,6 +2108,22 @@ h2 {
 
   .project-detail-copy {
     padding-top: 0;
+  }
+}
+
+@media (max-width: 1280px) {
+  /* Header: hide desktop nav, show burger */
+  .site-nav,
+  .header-actions {
+    display: none;
+  }
+
+  .header-burger {
+    display: flex;
+  }
+
+  .header-wordmark {
+    padding-left: 16px;
   }
 }
 
@@ -2158,21 +2170,6 @@ h2 {
   .project-detail-specs div {
     grid-template-columns: 1fr;
     gap: 6px;
-  }
-
-  /* Header: hide desktop nav, show burger */
-  .site-nav,
-  .header-actions {
-    display: none;
-  }
-
-  .header-burger {
-    display: flex;
-  }
-
-  /* Убрать лишний левый отступ логотипа на мобиле */
-  .header-wordmark {
-    padding-left: 16px;
   }
 
   /* Portfolio grid: 1 column */
