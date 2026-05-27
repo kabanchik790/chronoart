@@ -4,8 +4,7 @@ services:
   app:
     build: ./src/server
     env_file: ./src/server/.env
-    ports:
-      - "127.0.0.1:3001:3001"
+    network_mode: host
     volumes:
       - sessions:/app/sessions
       - ./uploads:/app/uploads

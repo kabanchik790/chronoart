@@ -1,4 +1,5 @@
 'use strict';
+const dns = require('dns');
 const nodemailer = require('nodemailer');
 
 const STATUS_LABELS = {
@@ -10,27 +11,55 @@ const STATUS_LABELS = {
   completed: 'Выполнен',
 };
 
-// Поддерживает любой SMTP-провайдер через переменные SMTP_*
-// Обратная совместимость: если SMTP_* не заданы, берём GMAIL_USER/GMAIL_APP_PASSWORD
 const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
 const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+const smtpHostname = process.env.SMTP_HOST || 'smtp.gmail.com';
+const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
+const smtpSecure = process.env.SMTP_SECURE === 'true';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587', 10),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: { user: smtpUser, pass: smtpPass },
-  connectionTimeout: 5000,
-  greetingTimeout: 5000,
-  socketTimeout: 10000,
-});
+// Ленивая инициализация транспорта: resolveHost вызывается один раз при первой отправке.
+// Timeweb блокирует исходящий SMTP по IPv4 (порт 587/465), но пропускает IPv6.
+// Nodemailer делает собственный dns.resolve4() и игнорирует --dns-result-order,
+// поэтому явно резолвим AAAA-запись и передаём IP напрямую.
+let _transporter = null;
+
+async function getTransporter() {
+  if (_transporter) return _transporter;
+
+  let host = smtpHostname;
+  try {
+    const addrs = await dns.promises.resolve6(smtpHostname);
+    if (addrs.length > 0) {
+      host = addrs[0]; // сырой IPv6-адрес — nodemailer передаёт его прямо в net.connect
+      console.log(`[email] ${smtpHostname} → ${host} (IPv6)`);
+    }
+  } catch {
+    console.warn(`[email] IPv6 resolve failed for ${smtpHostname}, using hostname`);
+  }
+
+  _transporter = nodemailer.createTransport({
+    host,
+    port: smtpPort,
+    secure: smtpSecure,
+    auth: { user: smtpUser, pass: smtpPass },
+    // При подключении по IP нужно явно указать servername для TLS/SNI,
+    // иначе сертификат проверяется по IP, а не по hostname
+    tls: { servername: smtpHostname },
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 30000,
+  });
+
+  return _transporter;
+}
 
 async function sendMail(options) {
   if (!smtpUser || !smtpPass) {
     console.error('[email] SMTP credentials не заданы — письмо не отправлено');
     return;
   }
-  return transporter.sendMail({
+  const t = await getTransporter();
+  return t.sendMail({
     from: `"CHRONO—ART" <${smtpUser}>`,
     ...options,
   }).then((info) => {
