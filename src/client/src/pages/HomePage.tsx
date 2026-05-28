@@ -77,7 +77,7 @@ export default function HomePage() {
           ) : null}
 
           {heroProjects.map((project, index) => (
-            <Link to={`/project/${project.id}`} className="work-card" key={project.id}>
+            <Link to={`/project/${project.id}`} className="work-card" key={project.id} state={{ displayIndex: index + 1 }}>
               <div className="work-card-heading">
                 <p>({formatProjectNumber(index + 1)})</p>
                 <div className="work-card-info">

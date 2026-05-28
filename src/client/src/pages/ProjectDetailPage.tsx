@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink, useLocation, useParams } from 'react-router-dom';
 import { ApiError } from '../api/auth';
 import { IconArrowLeft } from '../assets/icons';
-import { get, getProjectImageUrl } from '../api/projects';
+import { get, getProjectImageUrl, list as listProjects } from '../api/projects';
 import type { Project } from '../types';
 import { formatProjectNumber, getProjectMeta } from '../utils/projects';
 
@@ -12,12 +12,16 @@ function formatDate(value: string) {
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
+  const location = useLocation();
   const projectId = useMemo(() => {
     const parsed = Number.parseInt(id ?? '', 10);
     return Number.isNaN(parsed) ? null : parsed;
   }, [id]);
 
   const [project, setProject] = useState<Project | null>(null);
+  const [displayIndex, setDisplayIndex] = useState<number | null>(
+    (location.state as { displayIndex?: number } | null)?.displayIndex ?? null,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -37,9 +41,18 @@ export default function ProjectDetailPage() {
     setError('');
 
     void get(projectId)
-      .then((response) => {
-        if (!cancelled) {
-          setProject(response.project);
+      .then(async (response) => {
+        if (cancelled) return;
+        setProject(response.project);
+        // если индекс не передан через state (прямой заход по URL) — вычисляем из списка
+        if (displayIndex === null) {
+          try {
+            const all = await listProjects();
+            const pos = all.findIndex((p) => p.id === response.project.id);
+            if (!cancelled && pos !== -1) setDisplayIndex(pos + 1);
+          } catch {
+            // не критично — просто не покажем номер
+          }
         }
       })
       .catch((requestError) => {
@@ -85,7 +98,9 @@ export default function ProjectDetailPage() {
           </div>
 
           <div className="project-detail-copy">
-            <p className="project-detail-number">({formatProjectNumber(project.id)})</p>
+            {displayIndex !== null ? (
+              <p className="project-detail-number">({formatProjectNumber(displayIndex)})</p>
+            ) : null}
             <h1>{project.title}</h1>
             <p className="project-detail-meta">[{getProjectMeta(project.description)}]</p>
             <dl className="project-detail-specs">

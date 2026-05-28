@@ -40,7 +40,7 @@ export default function ProjectsPage() {
       {!loading && !error && projects.length > 0 ? (
         <div className="portfolio-grid">
           {projects.map((project, index) => (
-            <Link className="portfolio-card" key={project.id} to={`/project/${project.id}`}>
+            <Link className="portfolio-card" key={project.id} to={`/project/${project.id}`} state={{ displayIndex: index + 1 }}>
               <div className="portfolio-card-heading">
                 <p>({formatProjectNumber(index + 1)})</p>
                 <div>
