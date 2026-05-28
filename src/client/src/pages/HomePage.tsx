@@ -76,10 +76,10 @@ export default function HomePage() {
             <p className="hero-carousel-state">ПОРТФОЛИО ПОКА ПУСТО</p>
           ) : null}
 
-          {heroProjects.map((project) => (
+          {heroProjects.map((project, index) => (
             <Link to={`/project/${project.id}`} className="work-card" key={project.id}>
               <div className="work-card-heading">
-                <p>({formatProjectNumber(project.id)})</p>
+                <p>({formatProjectNumber(index + 1)})</p>
                 <div className="work-card-info">
                   <h2>{project.title}</h2>
                   <span>[{getProjectMeta(project.description)}]</span>

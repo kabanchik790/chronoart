@@ -39,10 +39,10 @@ export default function ProjectsPage() {
 
       {!loading && !error && projects.length > 0 ? (
         <div className="portfolio-grid">
-          {projects.map((project) => (
+          {projects.map((project, index) => (
             <Link className="portfolio-card" key={project.id} to={`/project/${project.id}`}>
               <div className="portfolio-card-heading">
-                <p>({formatProjectNumber(project.id)})</p>
+                <p>({formatProjectNumber(index + 1)})</p>
                 <div>
                   <h2>{project.title}</h2>
                   <span>[{getProjectMeta(project.description)}]</span>
