@@ -6,3 +6,7 @@ dist/
 *.docx
 outputs/
 docs/
+.DS_Store
+.claude/
+*.md
+!README.md
